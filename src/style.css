@@ -1,0 +1,50 @@
+body > div {
+  display: flex;
+  align-items: center;
+}
+.node {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  min-height: 30px;
+  margin: 0 5px;
+  border: 1px dashed rgba(0, 0, 0, .5);
+}
+.node-suggestions {
+  position: absolute;
+  top: 100%;
+  & > div {
+    cursor: pointer;
+  }
+  & > div:hover {
+    background: #eee;
+  }
+}
+.fraction {
+  display: inline-flex;
+  flex-direction: column;
+  & > math-node-2:nth-child(1) {
+    border-bottom: 1px solid;
+  }
+}
+.integral {
+  & > math-node:nth-child(1),
+  & > math-node:nth-child(2) {
+    position: absolute;
+    font-size: .6em;
+  }
+  & > math-node:nth-child(1) {
+    left: 0;
+    bottom: -1em;
+  }
+  & > math-node:nth-child(2) {
+    top: -.8em;
+    left: .5em;
+  }
+  & > math-node:nth-child(4) {
+    font-size: .7em;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "mobile-math",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "rollup -c -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "postcss-preset-env": "^6.7.0",
+    "rollup": "^1.26.0",
+    "rollup-plugin-elm": "^2.0.1",
+    "rollup-plugin-postcss": "^2.0.3"
+  }
+}
