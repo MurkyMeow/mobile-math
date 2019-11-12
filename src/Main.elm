@@ -1,9 +1,10 @@
 module Main exposing (main)
 
 import Browser
+import Json.Decode as Decode
 import Dict exposing (Dict)
 import Html exposing (Html, div, text)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onMouseUp, stopPropagationOn)
 import Html.Attributes exposing (class)
 
 main =
@@ -11,11 +12,13 @@ main =
 
 type alias Model =
   { node : MathNode
+  , selection : MathNode
   }
 
 init : Model
 init =
-  { node = BinaryOp (Value "x") Sum (Value "y")
+  { node = BinaryOp (Value "x") Sum (Function "cos" (Value "y"))
+  , selection = Empty
   }
 
 type Operator
@@ -31,6 +34,7 @@ type MathNode
 
 type Msg
   = Change MathNode
+  | Select MathNode
 
 update : Msg -> Model -> Model
 update msg model =
@@ -38,51 +42,62 @@ update msg model =
     Change to ->
       { model | node = to }
 
+    Select node ->
+      { model | selection = node }
+
 view : Model -> Html Msg
 view model =
   div []
-    [ Html.map (\arg -> Change arg) (viewMathNode model.node) ]
+    [ viewMathNode model.node model.selection ]
 
-viewMathNode : MathNode -> Html MathNode
-viewMathNode node =
+viewMathNode : MathNode -> MathNode -> Html Msg
+viewMathNode node selection =
+  let
+    viewChild : (MathNode -> MathNode) -> MathNode -> Html Msg
+    viewChild transform child =
+      Html.map
+        (\msg ->
+          case msg of
+            Change to ->
+              Change (transform to)
+            
+            _ ->
+              msg
+        )
+        (viewMathNode child selection)
+
+    suggestions =
+      if selection == node then
+        Html.map Change (viewSuggestions node)
+      else
+        text ""
+
+    parent = div
+      [ class "node"
+      , stopPropagationOn "mousedown" (Decode.succeed ( Select node, True ))
+      ]
+  in
   case node of
     Empty ->
-      div [ class "node" ]
-        [ div [ class "node-suggestions" ]
-          [ viewSuggestion (Value "xyz")
-          , viewSuggestion (Function "f" Empty)
-          ]
-        ]
+      parent [ suggestions ]
 
     Value val ->
-      div [ class "node" ]
-        [ text val
-        , div [ class "node-suggestions" ]
-          [ viewSuggestion (Value "x")
-          , viewSuggestion (Value "y")
-          , viewSuggestion (Value "z")
-          , viewSuggestion (Value "λ")
-          , viewSuggestion Empty
-          ]
-        ]
+      parent [ text val, suggestions ]
 
     Function template child ->
-      div [ class "node function" ]
+      parent
         [ text (template ++ "(")
-        , Html.map (\arg -> Function template arg) (viewMathNode child)
+        , viewChild (\arg -> Function template arg) child
         , text ")"
-        , div [ class "node-suggestions" ]
-          [ viewSuggestion (Function "cos" Empty)
-          , viewSuggestion (Function "sin" Empty)
-          , viewSuggestion Empty
-          ]
+        , suggestions
         ]
 
     BinaryOp left operator right ->
-      div [ class "node" ]
-        [ Html.map (\arg -> BinaryOp arg operator right) (viewMathNode left)
+      parent
+        [ viewChild (\arg -> BinaryOp arg operator right) left
         , viewOperator operator
-        , Html.map (\arg -> BinaryOp left operator arg) (viewMathNode right)
+        , viewChild (\arg -> BinaryOp left operator arg) right
+        , suggestions
         ]
 
 viewOperator : Operator -> Html a
@@ -97,19 +112,46 @@ viewOperator operator =
     Product ->
       text "*"
 
+viewSuggestions : MathNode -> Html MathNode
+viewSuggestions node =
+  div [ class "node-suggestions" ]
+    (case node of
+      Empty ->
+        [ viewSuggestion (Value "xyz")
+        , viewSuggestion (Function "f" Empty)
+        ]
+
+      Value _ ->
+        [ viewSuggestion (Value "x")
+        , viewSuggestion (Value "y")
+        , viewSuggestion (Value "z")
+        , viewSuggestion (Value "λ")
+        , viewSuggestion Empty
+        ]
+
+      Function _ _ ->
+        [ viewSuggestion (Function "cos" Empty)
+        , viewSuggestion (Function "sin" Empty)
+        , viewSuggestion Empty
+        ]
+
+      BinaryOp _ _ _ ->
+        []
+    )
+
 viewSuggestion : MathNode -> Html MathNode
 viewSuggestion suggestion =
-  div [ onClick suggestion ]
-   [ case suggestion of
-      Empty ->
-        text "<-"
+  div [ onMouseUp suggestion ]
+    [ case suggestion of
+        Empty ->
+          text "⬅"
 
-      Value val ->
-        text val
+        Value val ->
+          text val
 
-      Function template _ ->
-        text template
+        Function template _ ->
+          text template
 
-      BinaryOp left operator right ->
-        viewOperator operator
-   ]
+        BinaryOp left operator _ ->
+          viewOperator operator
+    ]
