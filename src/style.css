@@ -3,6 +3,7 @@ body > div {
   align-items: center;
 }
 .node {
+  user-select: none;
   cursor: pointer;
   position: relative;
   display: flex;
@@ -17,12 +18,16 @@ body > div {
 }
 .node-suggestions {
   position: absolute;
-  top: 100%;
+  top: 100%; left: 0;
+  color: #fff;
+  text-align: center;
   & > div {
     cursor: pointer;
-  }
-  & > div:hover {
-    background: #eee;
+    padding: 3px;
+    margin-bottom: 1px;
+    border-radius: 2px;
+    background: #aaa;
+    &:hover { filter: brightness(.8) }
   }
 }
 .fraction {
