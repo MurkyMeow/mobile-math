@@ -10,8 +10,10 @@ body > div {
   justify-content: center;
   min-width: 30px;
   min-height: 30px;
-  margin: 0 5px;
-  border: 1px dashed rgba(0, 0, 0, .5);
+  margin: 0 10px;
+  &:not(:active) > .node-suggestions {
+    display: none;
+  }
 }
 .node-suggestions {
   position: absolute;
