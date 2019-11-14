@@ -24,6 +24,7 @@ body > div {
     cursor: pointer;
     display: flex;
     justify-content: center;
+    min-width: 20px;
     padding: 3px;
     margin-bottom: 1px;
     border-radius: 2px;

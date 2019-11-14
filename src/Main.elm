@@ -138,6 +138,8 @@ viewSuggestions node =
         [ viewSuggestion (BinaryOp left Sum right)
         , viewSuggestion (BinaryOp left Difference right)
         , viewSuggestion (BinaryOp left Product right)
+        , viewSuggestion left
+        , viewSuggestion right
         ]
     )
 
