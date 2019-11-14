@@ -20,9 +20,10 @@ body > div {
   position: absolute;
   top: 100%; left: 0;
   color: #fff;
-  text-align: center;
   & > div {
     cursor: pointer;
+    display: flex;
+    justify-content: center;
     padding: 3px;
     margin-bottom: 1px;
     border-radius: 2px;
