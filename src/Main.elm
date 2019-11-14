@@ -134,8 +134,11 @@ viewSuggestions node =
         , viewSuggestion Empty
         ]
 
-      BinaryOp _ _ _ ->
-        []
+      BinaryOp left _ right ->
+        [ viewSuggestion (BinaryOp left Sum right)
+        , viewSuggestion (BinaryOp left Difference right)
+        , viewSuggestion (BinaryOp left Product right)
+        ]
     )
 
 viewSuggestion : MathNode -> Html MathNode
@@ -151,9 +154,6 @@ viewSuggestion suggestion =
       Function template _ ->
         [ text template ]
 
-      BinaryOp left op right ->
-        [ viewSuggestion left
-        , viewOperator op
-        , viewSuggestion right
-        ]
+      BinaryOp left op _ ->
+        [ viewSuggestion left, viewOperator op ]
     )
