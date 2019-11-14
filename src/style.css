@@ -28,6 +28,16 @@ body > div {
 .node--function {
   color: #c92127;
 }
+.node--fraction {
+  display: flex;
+  flex-direction: column;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    border-bottom: 1px solid #000;
+  }
+}
 .node-suggestions {
   position: absolute;
   top: 100%; left: 0;

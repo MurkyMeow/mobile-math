@@ -25,6 +25,7 @@ type Operator
   = Sum
   | Difference
   | Product
+  | Fraction
 
 type MathNode
   = Empty
@@ -93,12 +94,21 @@ viewMathNode showSuggestions node selection =
         ]
 
     BinaryOp left op right ->
-      div attrs
-        [ viewChild (\arg -> BinaryOp arg op right) left
-        , viewOperator op
-        , viewChild (\arg -> BinaryOp left op arg) right
-        , suggestions
-        ]
+      case op of
+        Fraction ->
+          div (attrs ++ [ class "node--fraction" ])
+            [ viewChild (\arg -> BinaryOp arg op right) left
+            , viewChild (\arg -> BinaryOp left op arg) right
+            , suggestions
+            ]
+
+        _ ->
+          div attrs
+            [ viewChild (\arg -> BinaryOp arg op right) left
+            , viewOperator op
+            , viewChild (\arg -> BinaryOp left op arg) right
+            , suggestions
+            ]
 
 viewOperator : Operator -> Html a
 viewOperator op =
@@ -112,6 +122,9 @@ viewOperator op =
 
       Product ->
         text "•"
+
+      Fraction ->
+        text "½"
     ]
 
 viewSuggestions : MathNode -> Html MathNode
@@ -143,6 +156,7 @@ viewSuggestions node =
         [ viewSuggestion (BinaryOp left Sum right)
         , viewSuggestion (BinaryOp left Difference right)
         , viewSuggestion (BinaryOp left Product right)
+        , viewSuggestion (BinaryOp left Fraction right)
         , viewSuggestion left
         , viewSuggestion right
         ]
