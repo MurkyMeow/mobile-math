@@ -17,7 +17,7 @@ type alias Model =
 
 init : Model
 init =
-  { node = BinaryOp (Value "x") Sum (Function "cos" (Value "y"))
+  { node = BinaryOp (Value "x") Sum (BinaryOp (Function "cos" (Value "y")) Sum Empty)
   , selection = Empty
   }
 
@@ -48,10 +48,10 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div []
-    [ viewMathNode model.node model.selection ]
+    [ viewMathNode True model.node model.selection ]
 
-viewMathNode : MathNode -> MathNode -> Html Msg
-viewMathNode node selection =
+viewMathNode : Bool -> MathNode -> MathNode -> Html Msg
+viewMathNode showSuggestions node selection =
   let
     viewChild : (MathNode -> MathNode) -> MathNode -> Html Msg
     viewChild transform child =
@@ -64,10 +64,10 @@ viewMathNode node selection =
             _ ->
               msg
         )
-        (viewMathNode child selection)
+        (viewMathNode showSuggestions child selection)
 
     suggestions =
-      if selection == node then
+      if showSuggestions && selection == node then
         Html.map Change (viewSuggestions node)
       else
         text ""
@@ -115,7 +115,7 @@ viewOperator operator =
 viewSuggestions : MathNode -> Html MathNode
 viewSuggestions node =
   div [ class "node-suggestions" ]
-    (case node of
+    ( case node of
       Empty ->
         [ viewSuggestion (Value "xyz")
         , viewSuggestion (Function "f" Empty)
@@ -126,12 +126,14 @@ viewSuggestions node =
         , viewSuggestion (Value "y")
         , viewSuggestion (Value "z")
         , viewSuggestion (Value "λ")
+        , viewSuggestion (BinaryOp node Sum Empty)
         , viewSuggestion Empty
         ]
 
       Function _ _ ->
         [ viewSuggestion (Function "cos" Empty)
         , viewSuggestion (Function "sin" Empty)
+        , viewSuggestion (BinaryOp node Sum Empty)
         , viewSuggestion Empty
         ]
 
@@ -143,15 +145,15 @@ viewSuggestion : MathNode -> Html MathNode
 viewSuggestion suggestion =
   div [ onMouseUp suggestion ]
     [ case suggestion of
-        Empty ->
-          text "⬅"
+      Empty ->
+        text "⬅"
 
-        Value val ->
-          text val
+      Value val ->
+        text val
 
-        Function template _ ->
-          text template
+      Function template _ ->
+        text template
 
-        BinaryOp left operator _ ->
-          viewOperator operator
+      BinaryOp _ _ _ ->
+        Html.map (\_ -> suggestion) (viewMathNode False suggestion Empty)
     ]
