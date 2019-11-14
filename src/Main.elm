@@ -70,44 +70,49 @@ viewMathNode showSuggestions node selection =
         Html.map Change (viewSuggestions node)
       else
         text ""
-  in
-  div
-    [ class "node"
-    , stopPropagationOn "mousedown" (Decode.succeed ( Select node, True ))
-    ]
-    ( case node of
-      Empty ->
-        [ suggestions ]
 
-      Value val ->
+    attrs =
+      [ class "node"
+      , stopPropagationOn "mousedown" (Decode.succeed ( Select node, True ))
+      ]
+  in
+  case node of
+    Empty ->
+      div attrs [ suggestions ]
+
+    Value val ->
+      div (attrs ++ [ class "node--value" ])
         [ text val, suggestions ]
 
-      Function template child ->
+    Function template child ->
+      div (attrs ++ [ class "node--function" ])
         [ text (template ++ "(")
         , viewChild (\arg -> Function template arg) child
         , text ")"
         , suggestions
         ]
 
-      BinaryOp left op right ->
+    BinaryOp left op right ->
+      div attrs
         [ viewChild (\arg -> BinaryOp arg op right) left
         , viewOperator op
         , viewChild (\arg -> BinaryOp left op arg) right
         , suggestions
         ]
-    )
 
 viewOperator : Operator -> Html a
 viewOperator op =
-  case op of
-    Sum ->
-      text "+"
-    
-    Difference ->
-      text "-"
+  div [ class "node--operator" ]
+    [ case op of
+      Sum ->
+        text "+"
+      
+      Difference ->
+        text "-"
 
-    Product ->
-      text "•"
+      Product ->
+        text "•"
+    ]
 
 viewSuggestions : MathNode -> Html MathNode
 viewSuggestions node =

@@ -1,3 +1,6 @@
+body {
+  font-family: 'Monaco';
+}
 body > div {
   display: flex;
   align-items: center;
@@ -15,6 +18,15 @@ body > div {
   &:not(:active) > .node-suggestions {
     display: none;
   }
+}
+.node--value {
+  color: #5f38b9;
+}
+.node--operator {
+  color: #4094a0;
+}
+.node--function {
+  color: #c92127;
 }
 .node-suggestions {
   position: absolute;
