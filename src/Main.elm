@@ -145,9 +145,9 @@ viewSuggestions node =
         , viewSuggestion Empty
         ]
 
-      Function _ _ ->
-        [ viewSuggestion (Function "cos" Empty)
-        , viewSuggestion (Function "sin" Empty)
+      Function _ child ->
+        [ viewSuggestion (Function "cos" child)
+        , viewSuggestion (Function "sin" child)
         , viewSuggestion (BinaryOp node Sum Empty)
         , viewSuggestion Empty
         ]
